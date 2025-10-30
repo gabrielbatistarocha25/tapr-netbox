@@ -1,0 +1,108 @@
+version: '3.0' 
+
+services:
+  service-discovery:
+    build:
+      context: ./service-discovery
+    container_name: service-discovery
+    ports:
+     - "8761:8761"
+    volumes:
+     - ./service-discovery:/app
+     - ~/.m2:/root/.m2
+    networks:
+     - app-network
+
+  auth-service:
+    build:
+      context: ./auth-service
+    container_name: auth-service
+    volumes:
+     - ./auth-service:/app
+     - ~/.m2:/root/.m2
+    depends_on:
+     - service-discovery
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-discovery:8761/eureka/
+    networks:
+     - app-network
+
+  organization-service:
+    build:
+      context: ./organization-service 
+    container_name: organization-service
+    volumes:
+     - ./organization-service:/app
+     - ~/.m2:/root/.m2
+    depends_on:
+     - service-discovery
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-discovery:8761/eureka/
+    networks:
+     - app-network
+
+  inventory-service:
+    build:
+      context: ./inventory-service
+    container_name: inventory-service
+    volumes:
+     - ./inventory-service:/app
+     - ~/.m2:/root/.m2
+    depends_on:
+     - service-discovery
+     - organization-service 
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-discovery:8761/eureka/
+    networks:
+     - app-network
+
+  infrastructure-service:
+    build:
+      context: ./infrastructure-service
+    container_name: infrastructure-service
+    volumes:
+     - ./infrastructure-service:/app
+     - ~/.m2:/root/.m2
+    depends_on:
+     - service-discovery
+     - organization-service 
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-discovery:8761/eureka/
+    networks:
+     - app-network
+
+  gateway-service:
+    build:
+      context: ./gateway-service
+    container_name: gateway-service
+    ports:
+     - "8083:8080" 
+    volumes:
+     - ./gateway-service:/app
+     - ~/.m2:/root/.m2
+    depends_on:
+     - service-discovery
+     - organization-service
+     - inventory-service
+     - infrastructure-service
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-discovery:8761/eureka/
+      JWT_SECRET: UmaSenhaSuperSeguraDoMeuApp
+    networks:
+     - app-network
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+     - "80:80" 
+    volumes:
+     - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+     - gateway-service
+    networks:
+     - app-network
+
+networks:
+  app-network:
+    driver: bridge

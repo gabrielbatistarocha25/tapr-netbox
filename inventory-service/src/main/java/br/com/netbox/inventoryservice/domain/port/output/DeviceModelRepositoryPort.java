@@ -8,5 +8,5 @@ public interface DeviceModelRepositoryPort {
     DeviceModel save(DeviceModel deviceModel);
     List<DeviceModel> findAllDeviceModels();
     Optional<DeviceModel> findDeviceModelById(Long id);
-    void deleteById(Long id);
+    void deleteDeviceModelById(Long id);
 }

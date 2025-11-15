@@ -55,7 +55,7 @@ public class InventoryService implements InventoryUseCase {
     @Override
     public void deleteManufacturer(Long id) {
         getManufacturerById(id); // Valida se existe
-        manufacturerRepository.deleteById(id);
+        manufacturerRepository.deleteManufacturerById(id); // <-- ATUALIZADO
     }
 
     // --- DeviceModel ---
@@ -93,7 +93,7 @@ public class InventoryService implements InventoryUseCase {
     @Override
     public void deleteDeviceModel(Long id) {
         getDeviceModelById(id); // Valida se existe
-        deviceModelRepository.deleteById(id);
+        deviceModelRepository.deleteDeviceModelById(id); // <-- ATUALIZADO
     }
 
     // --- Device ---
@@ -142,7 +142,7 @@ public class InventoryService implements InventoryUseCase {
     @Override
     public void deleteDevice(Long id) {
         getDeviceById(id); // Valida se existe
-        deviceRepository.deleteById(id);
+        deviceRepository.deleteDeviceById(id); // <-- ATUALIZADO
     }
 
     // Método utilitário para validar FKs do Device

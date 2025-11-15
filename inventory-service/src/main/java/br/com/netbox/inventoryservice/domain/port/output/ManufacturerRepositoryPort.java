@@ -8,5 +8,5 @@ public interface ManufacturerRepositoryPort {
     Manufacturer save(Manufacturer manufacturer);
     List<Manufacturer> findAll();
     Optional<Manufacturer> findById(Long id);
-    void deleteById(Long id); 
+    void deleteManufacturerById(Long id); 
 }

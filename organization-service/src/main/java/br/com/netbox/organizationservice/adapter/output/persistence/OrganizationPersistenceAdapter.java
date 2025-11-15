@@ -15,6 +15,7 @@ import br.com.netbox.organizationservice.domain.model.Site;
 import br.com.netbox.organizationservice.domain.port.output.LocationRepositoryPort;
 import br.com.netbox.organizationservice.domain.port.output.RackRepositoryPort;
 import br.com.netbox.organizationservice.domain.port.output.SiteRepositoryPort;
+import jakarta.persistence.EntityNotFoundException; // Importe este
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -43,7 +44,20 @@ public class OrganizationPersistenceAdapter implements LocationRepositoryPort, S
     // --- Location ---
     @Override
     public Location save(Location location) {
-        LocationEntity entity = locationMapper.toEntity(location);
+        LocationEntity entity;
+        if (location.getId() != null) {
+            // É um UPDATE: Carregue a entidade gerenciada (Corrigido na etapa anterior)
+            entity = locationJpaRepository.findById(location.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Localização com id " + location.getId() + " não encontrada."));
+        } else {
+            // É um CREATE: Crie uma nova entidade
+            entity = new LocationEntity();
+        }
+        
+        entity.setName(location.getName());
+        entity.setAddress(location.getAddress());
+        // NÃO mexemos na lista de sites
+
         return locationMapper.toModel(locationJpaRepository.save(entity));
     }
 
@@ -65,20 +79,42 @@ public class OrganizationPersistenceAdapter implements LocationRepositoryPort, S
     }
 
     @Override
-    public void deleteById(Long id) { // <-- ADICIONAR
+    public void deleteById(Long id) {
         locationJpaRepository.deleteById(id);
     }
 
     // --- Site ---
+    
+    // --- MÉTODO CORRIGIDO ---
     @Override
     public Site save(Site site) {
-        SiteEntity entity = siteMapper.toEntity(site);
-        if (entity.getLocation() != null && entity.getLocation().getId() != null) {
-            locationJpaRepository.findById(entity.getLocation().getId())
-                .ifPresent(entity::setLocation);
+        SiteEntity entity;
+        if (site.getId() != null) {
+            // É um UPDATE: Carregue a entidade gerenciada
+            entity = siteJpaRepository.findById(site.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Site com id " + site.getId() + " não encontrado."));
+        } else {
+            // É um CREATE: Crie uma nova entidade
+            entity = new SiteEntity();
         }
+
+        // Mapeie os campos do modelo para a entidade
+        entity.setName(site.getName());
+        
+        // Valide e atualize a Location
+        if (site.getLocation() != null && site.getLocation().getId() != null) {
+            LocationEntity location = locationJpaRepository.findById(site.getLocation().getId())
+                 .orElseThrow(() -> new EntityNotFoundException("Localização com id " + site.getLocation().getId() + " não encontrada."));
+            entity.setLocation(location);
+        } else {
+            throw new IllegalArgumentException("ID da Localização é obrigatório para salvar o Site.");
+        }
+        // Nós NÃO mexemos na lista de racks aqui, preservando as associações
+
         return siteMapper.toModel(siteJpaRepository.save(entity));
     }
+    // --- FIM DA CORREÇÃO ---
+
 
     @Override
     public List<Site> findAllSites() { 
@@ -98,12 +134,14 @@ public class OrganizationPersistenceAdapter implements LocationRepositoryPort, S
     }
 
     @Override
-    public void deleteSiteById(Long id) { 
+    public void deleteSiteById(Long id) {
         siteJpaRepository.deleteById(id);
     }
 
+    // --- Rack ---
     @Override
     public Rack save(Rack rack) {
+        // Este método está correto, pois Rack não tem filhos com orphanRemoval.
         RackEntity entity = rackMapper.toEntity(rack);
         if (entity.getSite() != null && entity.getSite().getId() != null) {
             siteJpaRepository.findById(entity.getSite().getId())
@@ -130,7 +168,7 @@ public class OrganizationPersistenceAdapter implements LocationRepositoryPort, S
     }
 
     @Override
-    public void deleteRackById(Long id) { 
+    public void deleteRackById(Long id) {
         rackJpaRepository.deleteById(id);
     }
 }

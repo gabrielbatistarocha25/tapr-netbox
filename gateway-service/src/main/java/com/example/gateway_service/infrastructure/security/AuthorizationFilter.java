@@ -2,8 +2,7 @@ package com.example.gateway_service.infrastructure.security;
 
 // --- Imports Necessários ---
 import java.nio.charset.StandardCharsets;
-import java.util.Collections; // Import para Collections.emptyMap()
-import java.util.Map;
+import java.util.Map; // <-- IMPORT ADICIONADO
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -30,14 +29,24 @@ public class AuthorizationFilter implements WebFilter {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    // Declara o mapa como vazio para evitar erros, mas permitir adicionar rotas depois
-    private static final Map<String, RoleType> routeRoles = Collections.emptyMap();
-    /* EXEMPLO FUTURO:
-    private static final Map<String, RoleType> routeRoles = Map.of(
-        // Adicione suas rotas protegidas aqui futuramente, ex:
-        // "/inventory-service/api/devices", RoleType.ADMIN // Assumindo RoleType.ADMIN existe
-    );
-    */
+    // ---- INÍCIO DA CORREÇÃO ----
+    // O mapa agora é preenchido com as rotas que exigem autenticação
+    private static final Map<String, RoleType> routeRoles;
+
+    static {
+        // Rotas que começam com "/organization-service" exigem no mínimo a role CUSTOMER
+        // Rotas que começam com "/inventory-service" exigem no mínimo a role CUSTOMER
+        // Rotas que começam com "/infrastructure-service" exigem no mínimo a role CUSTOMER
+        // Rotas do auth-service (login/registro) e service-discovery (eureka) não estão aqui,
+        // logo, são públicas.
+        routeRoles = Map.of(
+            "/organization-service", RoleType.CUSTOMER,
+            "/inventory-service", RoleType.CUSTOMER,
+            "/infrastructure-service", RoleType.CUSTOMER
+        );
+    }
+    // ---- FIM DA CORREÇÃO ----
+
 
     // Método isAuthorized precisa existir
     private boolean isAuthorized(String path, RoleType role) {
@@ -74,10 +83,6 @@ public class AuthorizationFilter implements WebFilter {
         // Se NÃO for uma rota protegida por ROLE ESPECÍFICA listada no mapa...
         if (!isProtectedRouteByRole) {
             // ... simplesmente continua a cadeia de filtros.
-            // ATENÇÃO: Se TODAS as rotas (ou a maioria) precisarem de um token válido
-            // (mesmo que sem role específica), a lógica de validação do token
-            // deveria vir ANTES deste 'if', ou este 'if' seria removido.
-            // Por enquanto, seguimos o exemplo original onde só rotas no mapa exigem token.
             return chain.filter(exchange);
         }
 

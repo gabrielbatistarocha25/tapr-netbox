@@ -9,4 +9,5 @@ public interface LocationRepositoryPort {
     List<Location> findAll();
     Optional<Location> findById(Long id);
     boolean existsById(Long id);
+    void deleteById(Long id); 
 }

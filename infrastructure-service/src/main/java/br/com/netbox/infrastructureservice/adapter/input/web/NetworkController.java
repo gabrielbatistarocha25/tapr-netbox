@@ -36,4 +36,22 @@ public class NetworkController {
         List<Vlan> vlans = networkUseCase.getVlansBySite(siteId);
         return ResponseEntity.ok(vlans);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Vlan> getVlanById(@PathVariable Long id) {
+        Vlan vlan = networkUseCase.getVlanById(id);
+        return ResponseEntity.ok(vlan);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Vlan> updateVlan(@PathVariable Long id, @Valid @RequestBody Vlan vlan) {
+        Vlan updatedVlan = networkUseCase.updateVlan(id, vlan);
+        return ResponseEntity.ok(updatedVlan);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteVlan(@PathVariable Long id) {
+        networkUseCase.deleteVlan(id);
+    }
 }

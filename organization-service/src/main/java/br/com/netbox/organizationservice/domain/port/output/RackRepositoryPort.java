@@ -9,4 +9,5 @@ public interface RackRepositoryPort {
     List<Rack> findAllRacks();
     Optional<Rack> findRackById(Long id);
     boolean rackExistsById(Long id);
+    void deleteRackById(Long id);
 }

@@ -9,4 +9,5 @@ public interface DeviceRepositoryPort {
     List<Device> findAllDevices();
     Optional<Device> findDeviceById(Long id);
     List<Device> findBySiteId(Long siteId);
+    void deleteById(Long id);
 }

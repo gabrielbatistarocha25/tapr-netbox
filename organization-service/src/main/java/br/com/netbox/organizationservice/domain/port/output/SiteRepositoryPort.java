@@ -9,4 +9,5 @@ public interface SiteRepositoryPort {
     List<Site> findAllSites();
     Optional<Site> findSiteById(Long id);
     boolean siteExistsById(Long id);
+    void deleteSiteById(Long id);
 }

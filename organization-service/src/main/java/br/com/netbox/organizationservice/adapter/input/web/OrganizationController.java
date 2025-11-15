@@ -19,6 +19,8 @@ public class OrganizationController {
         this.organizationUseCase = organizationUseCase;
     }
 
+    // --- Location Endpoints ---
+
     @PostMapping("/locations")
     public ResponseEntity<Location> createLocation(@RequestBody Location location) {
         Location createdLocation = organizationUseCase.createLocation(location);
@@ -35,6 +37,20 @@ public class OrganizationController {
         return ResponseEntity.ok(organizationUseCase.getLocationById(id));
     }
 
+    @PutMapping("/locations/{id}")
+    public ResponseEntity<Location> updateLocation(@PathVariable Long id, @RequestBody Location location) {
+        Location updatedLocation = organizationUseCase.updateLocation(id, location);
+        return ResponseEntity.ok(updatedLocation);
+    }
+
+    @DeleteMapping("/locations/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteLocation(@PathVariable Long id) {
+        organizationUseCase.deleteLocation(id);
+    }
+
+    // --- Site Endpoints ---
+
     @PostMapping("/sites")
     public ResponseEntity<Site> createSite(@RequestBody Site site) {
         Site createdSite = organizationUseCase.createSite(site);
@@ -48,10 +64,20 @@ public class OrganizationController {
 
     @GetMapping("/sites/{id}") 
     public ResponseEntity<Site> getSiteById(@PathVariable Long id) {
-        organizationUseCase.getAllSites().stream()
-            .filter(s -> s.getId().equals(id))
-            .findFirst()
-            .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException("Site com id " + id + " não encontrado."));
-        return ResponseEntity.ok().build();
+        // (Este método foi corrigido na sua última interação)
+        Site site = organizationUseCase.getSiteById(id);
+        return ResponseEntity.ok(site);
+    }
+
+    @PutMapping("/sites/{id}")
+    public ResponseEntity<Site> updateSite(@PathVariable Long id, @RequestBody Site site) {
+        Site updatedSite = organizationUseCase.updateSite(id, site);
+        return ResponseEntity.ok(updatedSite);
+    }
+
+    @DeleteMapping("/sites/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteSite(@PathVariable Long id) {
+        organizationUseCase.deleteSite(id);
     }
 }

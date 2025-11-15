@@ -7,4 +7,7 @@ public interface NetworkUseCase {
     Vlan createVlan(Vlan vlan);
     List<Vlan> getAllVlans();
     List<Vlan> getVlansBySite(Long siteId);
+    Vlan getVlanById(Long id); 
+    Vlan updateVlan(Long id, Vlan vlan); 
+    void deleteVlan(Long id); 
 }

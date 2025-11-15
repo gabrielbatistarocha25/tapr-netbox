@@ -1,11 +1,8 @@
 package com.example.gateway_service.domain.user.vo;
 
-
 public enum RoleType {
     CUSTOMER(1),
-    WAITER(2),
-    CHEF(3),
-    ADMIN(4);
+    ADMIN(4); // Removemos WAITER e CHEF
 
     private final int level;
 

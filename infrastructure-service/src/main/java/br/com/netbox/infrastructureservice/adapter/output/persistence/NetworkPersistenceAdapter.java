@@ -45,4 +45,9 @@ public class NetworkPersistenceAdapter implements VlanRepositoryPort {
                 .map(vlanMapper::toModel)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public void deleteById(Long id) { // <-- ADICIONAR
+        vlanJpaRepository.deleteById(id);
+    }
 }

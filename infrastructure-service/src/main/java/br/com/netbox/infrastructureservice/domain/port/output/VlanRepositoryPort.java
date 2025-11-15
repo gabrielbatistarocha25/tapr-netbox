@@ -9,4 +9,5 @@ public interface VlanRepositoryPort {
     List<Vlan> findAll();
     Optional<Vlan> findById(Long id);
     List<Vlan> findBySiteId(Long siteId);
+    void deleteById(Long id)
 }

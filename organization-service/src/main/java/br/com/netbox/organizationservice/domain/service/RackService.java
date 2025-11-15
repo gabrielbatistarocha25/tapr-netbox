@@ -44,4 +44,30 @@ public class RackService implements RackUseCase {
          return rackRepositoryPort.findRackById(id)
             .orElseThrow(() -> new EntityNotFoundException("Rack com id " + id + " não encontrado."));
     }
+
+    @Override
+    public Rack updateRack(Long id, Rack rackUpdate) {
+        Rack existingRack = getRackById(id);
+
+        if (rackUpdate.getSite() == null || rackUpdate.getSite().getId() == null) {
+            throw new IllegalArgumentException("O ID do Site é obrigatório para atualizar o Rack.");
+        }
+
+        Site site = siteRepositoryPort.findSiteById(rackUpdate.getSite().getId())
+                .orElseThrow(() -> new EntityNotFoundException("Site com id " + rackUpdate.getSite().getId() + " não encontrado."));
+
+        existingRack.setName(rackUpdate.getName());
+        existingRack.setuHeight(rackUpdate.getuHeight());
+        existingRack.setSite(site);
+
+        return rackRepositoryPort.save(existingRack);
+    }
+
+    @Override
+    public void deleteRack(Long id) {
+        if (!rackRepositoryPort.rackExistsById(id)) {
+             throw new EntityNotFoundException("Rack com id " + id + " não encontrado.");
+        }
+        rackRepositoryPort.deleteRackById(id);
+    }
 }

@@ -19,8 +19,6 @@ public class InventoryService implements InventoryUseCase {
     private final DeviceRepositoryPort deviceRepository;
     private final ManufacturerRepositoryPort manufacturerRepository;
     private final DeviceModelRepositoryPort deviceModelRepository;
-
-    // Injeta a porta para a API externa
     private final OrganizationApiPort organizationApiPort;
 
     public InventoryService(DeviceRepositoryPort deviceRepository, ManufacturerRepositoryPort manufacturerRepository, DeviceModelRepositoryPort deviceModelRepository, OrganizationApiPort organizationApiPort) {
@@ -30,54 +28,79 @@ public class InventoryService implements InventoryUseCase {
         this.organizationApiPort = organizationApiPort;
     }
 
+    // --- Manufacturer ---
     @Override
     public Manufacturer createManufacturer(Manufacturer manufacturer) {
-        // Lógica do DeviceService original
         return manufacturerRepository.save(manufacturer);
     }
 
     @Override
     public List<Manufacturer> getAllManufacturers() {
-        // Lógica do DeviceService original
         return manufacturerRepository.findAll();
     }
 
     @Override
+    public Manufacturer getManufacturerById(Long id) {
+        return manufacturerRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Fabricante com id " + id + " não encontrado."));
+    }
+
+    @Override
+    public Manufacturer updateManufacturer(Long id, Manufacturer manufacturerUpdate) {
+        Manufacturer existing = getManufacturerById(id);
+        existing.setName(manufacturerUpdate.getName());
+        return manufacturerRepository.save(existing);
+    }
+
+    @Override
+    public void deleteManufacturer(Long id) {
+        getManufacturerById(id); // Valida se existe
+        manufacturerRepository.deleteById(id);
+    }
+
+    // --- DeviceModel ---
+    @Override
     public DeviceModel createDeviceModel(DeviceModel deviceModel) {
-        // Lógica do DeviceService original
-        // Validação interna (Fabricante está no mesmo serviço)
-        manufacturerRepository.findById(deviceModel.getManufacturer().getId())
-                .orElseThrow(() -> new EntityNotFoundException("Fabricante com id " + deviceModel.getManufacturer().getId() + " não encontrado."));
+        // Validação interna (Fabricante)
+        getManufacturerById(deviceModel.getManufacturer().getId());
         return deviceModelRepository.save(deviceModel);
     }
 
     @Override
     public List<DeviceModel> getAllDeviceModels() {
-        // Lógica do DeviceService original
         return deviceModelRepository.findAllDeviceModels();
     }
 
     @Override
+    public DeviceModel getDeviceModelById(Long id) {
+         return deviceModelRepository.findDeviceModelById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Modelo de Dispositivo com id " + id + " não encontrado."));
+    }
+
+    @Override
+    public DeviceModel updateDeviceModel(Long id, DeviceModel deviceModelUpdate) {
+        DeviceModel existing = getDeviceModelById(id);
+        
+        // Valida novo fabricante
+        Manufacturer manufacturer = getManufacturerById(deviceModelUpdate.getManufacturer().getId());
+
+        existing.setName(deviceModelUpdate.getName());
+        existing.setManufacturer(manufacturer);
+        
+        return deviceModelRepository.save(existing);
+    }
+
+    @Override
+    public void deleteDeviceModel(Long id) {
+        getDeviceModelById(id); // Valida se existe
+        deviceModelRepository.deleteById(id);
+    }
+
+    // --- Device ---
+    @Override
     public Device createDevice(Device device) {
-        if (device.getSiteId() == null) {
-             throw new IllegalArgumentException("O ID do Site é obrigatório.");
-        }
-        if (!organizationApiPort.siteExists(device.getSiteId())) {
-            throw new EntityNotFoundException("Site com id " + device.getSiteId() + " não encontrado.");
-        }
-
-        if (device.getRackId() != null) {
-            if (!organizationApiPort.rackExists(device.getRackId())) {
-                throw new EntityNotFoundException("Rack com id " + device.getRackId() + " não encontrado.");
-            }
-        }
-
-        if (device.getDeviceModelId() == null) {
-            throw new IllegalArgumentException("O ID do Modelo de Dispositivo é obrigatório.");
-        }
-        deviceModelRepository.findDeviceModelById(device.getDeviceModelId())
-            .orElseThrow(() -> new EntityNotFoundException("Modelo de Dispositivo com id " + device.getDeviceModelId() + " não encontrado."));
-
+        // Validações
+        validateDeviceDependencies(device.getSiteId(), device.getRackId(), device.getDeviceModelId());
         return deviceRepository.save(device);
     }
 
@@ -92,5 +115,55 @@ public class InventoryService implements InventoryUseCase {
             throw new EntityNotFoundException("Site com id " + siteId + " não encontrado.");
         }
         return deviceRepository.findBySiteId(siteId);
+    }
+
+    @Override
+    public Device getDeviceById(Long id) {
+        return deviceRepository.findDeviceById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Dispositivo com id " + id + " não encontrado."));
+    }
+
+    @Override
+    public Device updateDevice(Long id, Device deviceUpdate) {
+        Device existing = getDeviceById(id);
+
+        // Valida novas dependências
+        validateDeviceDependencies(deviceUpdate.getSiteId(), deviceUpdate.getRackId(), deviceUpdate.getDeviceModelId());
+
+        existing.setName(deviceUpdate.getName());
+        existing.setPosition(deviceUpdate.getPosition());
+        existing.setSiteId(deviceUpdate.getSiteId());
+        existing.setRackId(deviceUpdate.getRackId());
+        existing.setDeviceModelId(deviceUpdate.getDeviceModelId());
+
+        return deviceRepository.save(existing);
+    }
+
+    @Override
+    public void deleteDevice(Long id) {
+        getDeviceById(id); // Valida se existe
+        deviceRepository.deleteById(id);
+    }
+
+    // Método utilitário para validar FKs do Device
+    private void validateDeviceDependencies(Long siteId, Long rackId, Long deviceModelId) {
+        if (siteId == null) {
+             throw new IllegalArgumentException("O ID do Site é obrigatório.");
+        }
+        if (!organizationApiPort.siteExists(siteId)) {
+            throw new EntityNotFoundException("Site com id " + siteId + " não encontrado.");
+        }
+
+        if (rackId != null) {
+            if (!organizationApiPort.rackExists(rackId)) {
+                throw new EntityNotFoundException("Rack com id " + rackId + " não encontrado.");
+            }
+        }
+
+        if (deviceModelId == null) {
+            throw new IllegalArgumentException("O ID do Modelo de Dispositivo é obrigatório.");
+        }
+        // Validação interna (DeviceModel)
+        getDeviceModelById(deviceModelId);
     }
 }

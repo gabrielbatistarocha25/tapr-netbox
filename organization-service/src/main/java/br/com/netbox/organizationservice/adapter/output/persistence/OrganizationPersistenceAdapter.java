@@ -40,6 +40,7 @@ public class OrganizationPersistenceAdapter implements LocationRepositoryPort, S
         this.rackMapper = rackMapper;
     }
 
+    // --- Location ---
     @Override
     public Location save(Location location) {
         LocationEntity entity = locationMapper.toEntity(location);
@@ -63,6 +64,12 @@ public class OrganizationPersistenceAdapter implements LocationRepositoryPort, S
         return locationJpaRepository.existsById(id);
     }
 
+    @Override
+    public void deleteById(Long id) { // <-- ADICIONAR
+        locationJpaRepository.deleteById(id);
+    }
+
+    // --- Site ---
     @Override
     public Site save(Site site) {
         SiteEntity entity = siteMapper.toEntity(site);
@@ -91,6 +98,11 @@ public class OrganizationPersistenceAdapter implements LocationRepositoryPort, S
     }
 
     @Override
+    public void deleteSiteById(Long id) { 
+        siteJpaRepository.deleteById(id);
+    }
+
+    @Override
     public Rack save(Rack rack) {
         RackEntity entity = rackMapper.toEntity(rack);
         if (entity.getSite() != null && entity.getSite().getId() != null) {
@@ -115,5 +127,10 @@ public class OrganizationPersistenceAdapter implements LocationRepositoryPort, S
     @Override
      public boolean rackExistsById(Long id) { 
          return rackJpaRepository.existsById(id);
+    }
+
+    @Override
+    public void deleteRackById(Long id) { 
+        rackJpaRepository.deleteById(id);
     }
 }

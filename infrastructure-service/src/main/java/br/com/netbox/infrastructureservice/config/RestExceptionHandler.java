@@ -1,6 +1,7 @@
-package br.com.netbox.infrastructureservice.config;
+package br.com.netbox.organizationservice.config; // (ou .inventoryservice.config / .infrastructureservice.config)
 
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.dao.DataIntegrityViolationException; // <-- ADICIONAR IMPORT
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -38,4 +39,18 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
+
+    // --- ADICIONAR ESTE MÉTODO ---
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    protected ResponseEntity<Object> handleConflict(DataIntegrityViolationException ex, WebRequest request) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", HttpStatus.CONFLICT.value());
+        body.put("error", "Conflito de Dados");
+        body.put("message", "Não foi possível executar a operação. O recurso pode estar sendo usado por outro.");
+        body.put("path", request.getDescription(false).replace("uri=", ""));
+
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+    }
+    // --- FIM DA ADIÇÃO ---
 }

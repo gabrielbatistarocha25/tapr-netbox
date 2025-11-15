@@ -22,16 +22,7 @@ public class NetworkService implements NetworkUseCase {
 
     @Override
     public Vlan createVlan(Vlan vlan) {
-        // Lógica do NetworkService original
-        if (vlan.getSiteId() == null) {
-            throw new IllegalArgumentException("O ID do Site é obrigatório para criar uma VLAN.");
-        }
-
-        // Validação externa (Microserviço)
-        if (!organizationApiPort.siteExists(vlan.getSiteId())) {
-            throw new EntityNotFoundException("Site com id " + vlan.getSiteId() + " não encontrado.");
-        }
-
+        validateVlanDependencies(vlan.getSiteId());
         return vlanRepositoryPort.save(vlan);
     }
 
@@ -46,5 +37,39 @@ public class NetworkService implements NetworkUseCase {
             throw new EntityNotFoundException("Site com id " + siteId + " não encontrado.");
         }
         return vlanRepositoryPort.findBySiteId(siteId);
+    }
+
+    @Override
+    public Vlan getVlanById(Long id) {
+        return vlanRepositoryPort.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("VLAN com id " + id + " não encontrada."));
+    }
+
+    @Override
+    public Vlan updateVlan(Long id, Vlan vlanUpdate) {
+        Vlan existing = getVlanById(id);
+        validateVlanDependencies(vlanUpdate.getSiteId());
+        
+        existing.setName(vlanUpdate.getName());
+        existing.setVlanId(vlanUpdate.getVlanId());
+        existing.setSiteId(vlanUpdate.getSiteId());
+
+        return vlanRepositoryPort.save(existing);
+    }
+
+    @Override
+    public void deleteVlan(Long id) {
+        getVlanById(id); // Valida se existe
+        vlanRepositoryPort.deleteById(id);
+    }
+
+    // Método utilitário
+    private void validateVlanDependencies(Long siteId) {
+        if (siteId == null) {
+            throw new IllegalArgumentException("O ID do Site é obrigatório para criar uma VLAN.");
+        }
+        if (!organizationApiPort.siteExists(siteId)) {
+            throw new EntityNotFoundException("Site com id " + siteId + " não encontrado.");
+        }
     }
 }

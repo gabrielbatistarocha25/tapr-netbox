@@ -34,4 +34,16 @@ public class RackController {
     public ResponseEntity<Rack> getRackById(@PathVariable Long id) {
         return ResponseEntity.ok(rackUseCase.getRackById(id));
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Rack> updateRack(@PathVariable Long id, @Valid @RequestBody Rack rack) {
+        Rack updatedRack = rackUseCase.updateRack(id, rack);
+        return ResponseEntity.ok(updatedRack);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteRack(@PathVariable Long id) {
+        rackUseCase.deleteRack(id);
+    }
 }

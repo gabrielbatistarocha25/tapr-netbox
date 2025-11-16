@@ -10,4 +10,5 @@ public interface VlanRepositoryPort {
     Optional<Vlan> findById(Long id);
     List<Vlan> findBySiteId(Long siteId);
     void deleteById(Long id);
+    boolean existsById(Long id);
 }

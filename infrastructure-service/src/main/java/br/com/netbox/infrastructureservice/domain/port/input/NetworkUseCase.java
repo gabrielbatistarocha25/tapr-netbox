@@ -9,5 +9,6 @@ public interface NetworkUseCase {
     List<Vlan> getVlansBySite(Long siteId);
     Vlan getVlanById(Long id); 
     Vlan updateVlan(Long id, Vlan vlan); 
-    void deleteVlan(Long id); 
+    void deleteVlan(Long id);
+    boolean vlanExists(Long id);
 }

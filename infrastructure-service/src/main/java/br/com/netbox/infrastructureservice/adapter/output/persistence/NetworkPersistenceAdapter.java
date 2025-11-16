@@ -47,7 +47,12 @@ public class NetworkPersistenceAdapter implements VlanRepositoryPort {
     }
 
     @Override
-    public void deleteById(Long id) { // <-- ADICIONAR
+    public void deleteById(Long id) {
         vlanJpaRepository.deleteById(id);
+    }
+
+    @Override
+    public boolean existsById(Long id) {
+        return vlanJpaRepository.existsById(id);
     }
 }

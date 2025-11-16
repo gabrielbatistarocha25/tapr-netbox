@@ -59,11 +59,15 @@ public class NetworkService implements NetworkUseCase {
 
     @Override
     public void deleteVlan(Long id) {
-        getVlanById(id); // Valida se existe
+        getVlanById(id);
         vlanRepositoryPort.deleteById(id);
     }
+    
+    @Override
+    public boolean vlanExists(Long id) {
+        return vlanRepositoryPort.existsById(id);
+    }
 
-    // Método utilitário
     private void validateVlanDependencies(Long siteId) {
         if (siteId == null) {
             throw new IllegalArgumentException("O ID do Site é obrigatório para criar uma VLAN.");

@@ -1,5 +1,5 @@
 ### 
-### ARQUIVO DE TESTE ATUALIZADO (com IPAM)
+### ARQUIVO DE TESTES 
 ###
 @baseUrl = https://noxious-spooky-crematorium-97xrvv96wgr9hxqp9-80.app.github.dev
 @token = 

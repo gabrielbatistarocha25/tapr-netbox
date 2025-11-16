@@ -28,7 +28,6 @@ public class InventoryService implements InventoryUseCase {
         this.organizationApiPort = organizationApiPort;
     }
 
-    // --- Manufacturer ---
     @Override
     public Manufacturer createManufacturer(Manufacturer manufacturer) {
         return manufacturerRepository.save(manufacturer);
@@ -54,14 +53,12 @@ public class InventoryService implements InventoryUseCase {
 
     @Override
     public void deleteManufacturer(Long id) {
-        getManufacturerById(id); // Valida se existe
-        manufacturerRepository.deleteManufacturerById(id); // <-- ATUALIZADO
+        getManufacturerById(id);
+        manufacturerRepository.deleteManufacturerById(id); 
     }
 
-    // --- DeviceModel ---
     @Override
     public DeviceModel createDeviceModel(DeviceModel deviceModel) {
-        // Validação interna (Fabricante)
         getManufacturerById(deviceModel.getManufacturer().getId());
         return deviceModelRepository.save(deviceModel);
     }
@@ -81,7 +78,6 @@ public class InventoryService implements InventoryUseCase {
     public DeviceModel updateDeviceModel(Long id, DeviceModel deviceModelUpdate) {
         DeviceModel existing = getDeviceModelById(id);
         
-        // Valida novo fabricante
         Manufacturer manufacturer = getManufacturerById(deviceModelUpdate.getManufacturer().getId());
 
         existing.setName(deviceModelUpdate.getName());
@@ -92,14 +88,12 @@ public class InventoryService implements InventoryUseCase {
 
     @Override
     public void deleteDeviceModel(Long id) {
-        getDeviceModelById(id); // Valida se existe
-        deviceModelRepository.deleteDeviceModelById(id); // <-- ATUALIZADO
+        getDeviceModelById(id); 
+        deviceModelRepository.deleteDeviceModelById(id); 
     }
 
-    // --- Device ---
     @Override
     public Device createDevice(Device device) {
-        // Validações
         validateDeviceDependencies(device.getSiteId(), device.getRackId(), device.getDeviceModelId());
         return deviceRepository.save(device);
     }
@@ -127,7 +121,6 @@ public class InventoryService implements InventoryUseCase {
     public Device updateDevice(Long id, Device deviceUpdate) {
         Device existing = getDeviceById(id);
 
-        // Valida novas dependências
         validateDeviceDependencies(deviceUpdate.getSiteId(), deviceUpdate.getRackId(), deviceUpdate.getDeviceModelId());
 
         existing.setName(deviceUpdate.getName());
@@ -141,11 +134,10 @@ public class InventoryService implements InventoryUseCase {
 
     @Override
     public void deleteDevice(Long id) {
-        getDeviceById(id); // Valida se existe
-        deviceRepository.deleteDeviceById(id); // <-- ATUALIZADO
+        getDeviceById(id); 
+        deviceRepository.deleteDeviceById(id); 
     }
 
-    // Método utilitário para validar FKs do Device
     private void validateDeviceDependencies(Long siteId, Long rackId, Long deviceModelId) {
         if (siteId == null) {
              throw new IllegalArgumentException("O ID do Site é obrigatório.");
@@ -163,7 +155,6 @@ public class InventoryService implements InventoryUseCase {
         if (deviceModelId == null) {
             throw new IllegalArgumentException("O ID do Modelo de Dispositivo é obrigatório.");
         }
-        // Validação interna (DeviceModel)
         getDeviceModelById(deviceModelId);
     }
 }

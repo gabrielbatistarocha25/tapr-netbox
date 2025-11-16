@@ -26,17 +26,14 @@ import java.util.stream.Collectors;
 @Component
 public class InventoryPersistenceAdapter implements ManufacturerRepositoryPort, DeviceModelRepositoryPort, DeviceRepositoryPort {
 
-    // Repositórios
     private final ManufacturerJpaRepository manufacturerJpaRepository;
     private final DeviceModelJpaRepository deviceModelJpaRepository;
     private final DeviceJpaRepository deviceJpaRepository;
 
-    // Mappers
     private final ManufacturerMapper manufacturerMapper;
     private final DeviceModelMapper deviceModelMapper;
     private final DeviceMapper deviceMapper;
 
-    // Construtor
     public InventoryPersistenceAdapter(ManufacturerJpaRepository manufacturerJpaRepository, DeviceModelJpaRepository deviceModelJpaRepository, DeviceJpaRepository deviceJpaRepository, ManufacturerMapper manufacturerMapper, DeviceModelMapper deviceModelMapper, DeviceMapper deviceMapper) {
         this.manufacturerJpaRepository = manufacturerJpaRepository;
         this.deviceModelJpaRepository = deviceModelJpaRepository;
@@ -46,24 +43,17 @@ public class InventoryPersistenceAdapter implements ManufacturerRepositoryPort, 
         this.deviceMapper = deviceMapper;
     }
 
-    // --- ManufacturerRepositoryPort Methods ---
-
-    // --- MÉTODO CORRIGIDO ---
     @Override
     public Manufacturer save(Manufacturer manufacturer) {
         ManufacturerEntity entity;
         if (manufacturer.getId() != null) {
-            // É um UPDATE: Carregue a entidade gerenciada
             entity = manufacturerJpaRepository.findById(manufacturer.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Fabricante com id " + manufacturer.getId() + " não encontrado."));
         } else {
-            // É um CREATE: Crie uma nova entidade
             entity = new ManufacturerEntity();
         }
         
-        // Mapeie os campos do modelo para a entidade
         entity.setName(manufacturer.getName());
-        // Nós NÃO mexemos na lista de deviceModels aqui, preservando as associações
 
         return manufacturerMapper.toModel(manufacturerJpaRepository.save(entity));
     }
@@ -85,26 +75,19 @@ public class InventoryPersistenceAdapter implements ManufacturerRepositoryPort, 
         manufacturerJpaRepository.deleteById(id);
     }
 
-    // --- DeviceModelRepositoryPort Methods ---
-
-    // --- MÉTODO CORRIGIDO ---
     @Override
     @Transactional
     public DeviceModel save(DeviceModel deviceModel) {
         DeviceModelEntity entity;
         if (deviceModel.getId() != null) {
-            // É um UPDATE: Carregue a entidade gerenciada
             entity = deviceModelJpaRepository.findById(deviceModel.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Modelo de Dispositivo com id " + deviceModel.getId() + " não encontrado."));
         } else {
-            // É um CREATE: Crie uma nova entidade
             entity = new DeviceModelEntity();
         }
 
-        // Mapeie os campos do modelo para a entidade
         entity.setName(deviceModel.getName());
         
-        // Valide e atualize o Fabricante
         if (deviceModel.getManufacturer() != null && deviceModel.getManufacturer().getId() != null) {
             ManufacturerEntity manufacturerEntity = manufacturerJpaRepository.findById(deviceModel.getManufacturer().getId())
                 .orElseThrow(() -> new EntityNotFoundException("Fabricante com id " + deviceModel.getManufacturer().getId() + " não encontrado ao salvar DeviceModel."));
@@ -112,7 +95,6 @@ public class InventoryPersistenceAdapter implements ManufacturerRepositoryPort, 
         } else {
              throw new IllegalArgumentException("ID do Fabricante é obrigatório para salvar DeviceModel.");
         }
-        // Nós NÃO mexemos na lista de devices aqui, preservando as associações
 
         return deviceModelMapper.toModel(deviceModelJpaRepository.save(entity));
     }
@@ -134,12 +116,10 @@ public class InventoryPersistenceAdapter implements ManufacturerRepositoryPort, 
         deviceModelJpaRepository.deleteById(id);
     }
 
-    // --- DeviceRepositoryPort Methods ---
     @Override
     @Transactional
     public Device save(Device device) {
         DeviceEntity entity;
-        // (Este método já estava correto)
         if (device.getId() != null) {
             entity = deviceJpaRepository.findById(device.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Dispositivo com id " + device.getId() + " não encontrado."));
@@ -147,7 +127,6 @@ public class InventoryPersistenceAdapter implements ManufacturerRepositoryPort, 
             entity = new DeviceEntity();
         }
 
-        // Atualiza os campos
         entity.setName(device.getName());
         entity.setPosition(device.getPosition());
         entity.setSiteId(device.getSiteId());

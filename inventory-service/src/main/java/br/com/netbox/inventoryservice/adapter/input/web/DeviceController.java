@@ -21,7 +21,6 @@ public class DeviceController {
         this.inventoryUseCase = inventoryUseCase;
     }
 
-    // --- Manufacturer ---
     @PostMapping("/manufacturers")
     public ResponseEntity<Manufacturer> createManufacturer(@Valid @RequestBody Manufacturer manufacturer) {
         return new ResponseEntity<>(inventoryUseCase.createManufacturer(manufacturer), HttpStatus.CREATED);
@@ -48,7 +47,6 @@ public class DeviceController {
         inventoryUseCase.deleteManufacturer(id);
     }
 
-    // --- DeviceModel ---
     @PostMapping("/device-models")
     public ResponseEntity<DeviceModel> createDeviceModel(@Valid @RequestBody DeviceModel deviceModel) {
         return new ResponseEntity<>(inventoryUseCase.createDeviceModel(deviceModel), HttpStatus.CREATED);
@@ -75,7 +73,6 @@ public class DeviceController {
         inventoryUseCase.deleteDeviceModel(id);
     }
 
-    // --- Device ---
     @PostMapping("/devices")
     public ResponseEntity<Device> createDevice(@Valid @RequestBody Device device) {
         return new ResponseEntity<>(inventoryUseCase.createDevice(device), HttpStatus.CREATED);

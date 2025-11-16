@@ -1,7 +1,7 @@
-package br.com.netbox.organizationservice.config; // (ou .inventoryservice.config / .infrastructureservice.config)
+package br.com.netbox.organizationservice.config; 
 
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.dao.DataIntegrityViolationException; // <-- ADICIONAR IMPORT
+import org.springframework.dao.DataIntegrityViolationException; 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -40,7 +40,6 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
-    // --- ADICIONAR ESTE MÉTODO ---
     @ExceptionHandler(DataIntegrityViolationException.class)
     protected ResponseEntity<Object> handleConflict(DataIntegrityViolationException ex, WebRequest request) {
         Map<String, Object> body = new LinkedHashMap<>();

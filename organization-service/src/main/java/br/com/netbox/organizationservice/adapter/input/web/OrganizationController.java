@@ -19,7 +19,6 @@ public class OrganizationController {
         this.organizationUseCase = organizationUseCase;
     }
 
-    // --- Location Endpoints ---
 
     @PostMapping("/locations")
     public ResponseEntity<Location> createLocation(@RequestBody Location location) {
@@ -49,7 +48,6 @@ public class OrganizationController {
         organizationUseCase.deleteLocation(id);
     }
 
-    // --- Site Endpoints ---
 
     @PostMapping("/sites")
     public ResponseEntity<Site> createSite(@RequestBody Site site) {
@@ -64,7 +62,6 @@ public class OrganizationController {
 
     @GetMapping("/sites/{id}") 
     public ResponseEntity<Site> getSiteById(@PathVariable Long id) {
-        // (Este método foi corrigido na sua última interação)
         Site site = organizationUseCase.getSiteById(id);
         return ResponseEntity.ok(site);
     }

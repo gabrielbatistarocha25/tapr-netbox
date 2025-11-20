@@ -1,1 +1,1 @@
-# 1116AN-nginx
+O projeto desenvolvido foi um clone simplicado do sistema de documentação e gerenciamento de redes NetBox.

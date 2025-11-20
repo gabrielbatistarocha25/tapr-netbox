@@ -149,7 +149,7 @@ Authorization: Bearer {{token}}
 # 4. INFRASTRUCTURE-SERVICE (IPAM)
 # ============================================
 
-### 4.1 Criar Prefix 1 (para Vlan 1, no Site 1)
+### 4.1 Criar Prefixo 1 (para Vlan 1, no Site 1)
 POST {{baseUrl}}/infrastructure-service/api/prefixes
 Content-Type: application/json
 Authorization: Bearer {{token}}
